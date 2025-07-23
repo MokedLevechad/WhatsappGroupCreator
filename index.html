@@ -1,0 +1,155 @@
+<!-- Finalized index.html with styling and logo from LEV ECHAD + multiline input support -->
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LEV ECHAD TLV - יצירת קבוצת וואטסאפ</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: #fefdfc;
+      direction: rtl;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 720px;
+      margin: auto;
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+      position: relative;
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .logo img {
+      width: 100px;
+    }
+    h2 {
+      color: #b91c1c;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+      color: #374151;
+    }
+    .form-input, .form-textarea {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      background: #f9fafb;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background: #b91c1c;
+      color: #fff;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .btn:hover {
+      background: #991b1b;
+    }
+    .alert {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    .alert-success {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #10b981;
+    }
+    .alert-error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #ef4444;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="logo">
+    <img src="לב אחד.png" alt="Lev Echad Logo">
+  </div>
+  <h2>יצירת קבוצת וואטסאפ</h2>
+  <form id="groupForm">
+    <div class="form-group">
+      <label class="form-label" for="groupName">שם הקבוצה</label>
+      <input type="text" id="groupName" class="form-input" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="groupDescription">תיאור</label>
+      <textarea id="groupDescription" class="form-textarea"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="participants">מספרי טלפון (שורה לכל מספר)</label>
+      <textarea id="participants" class="form-textarea" rows="6" required></textarea>
+    </div>
+    <button type="submit" class="btn">🚀 צור קבוצה</button>
+    <div id="responseMsg"></div>
+  </form>
+</div>
+<script>
+  document.getElementById('groupForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const groupName = document.getElementById('groupName').value.trim();
+    const description = document.getElementById('groupDescription').value.trim();
+    const participantsInput = document.getElementById('participants').value.trim();
+    const participants = participantsInput.split(/\r?\n/).map(p => p.trim()).filter(Boolean);
+
+    const options = {
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCIgOiAiNTMxMzJmMjMtN2I4YS00YzljLWE5OWUtZGI2Yjg1OWZlNDA4IiwgInJvbGUiIDogImFwaSIsICJ0eXBlIiA6ICJhcGkiLCAibmFtZSIgOiAi157XoNeU15wg15XXldeQ15jXodeQ16TXmdedIiwgImV4cCIgOiAyMDY4NzkxMjIxLCAiaWF0IiA6IDE3NTMyNTg0MjEsICJzdWIiIDogIjE2OTQxZTc2LTdlMzAtNDBkOS05YzkxLWQxODgwMTVlNTliZiIsICJpc3MiIDogInBlcmlza29wZS5hcHAiLCAibWV0YWRhdGEiIDogeyJzY29wZXMiOiBbIjk3MjUyNTYyNzQ2OEBjLnVzIl19fQ.ho2ozoZLOjgbFpbD5pN89vVrd7bSys6VSs6JlxesZg8',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        group_name: groupName,
+        options: {
+          description,
+          addMembersAdminsOnly: '',
+          infoAdminsOnly: '',
+          messagesAdminsOnly: '',
+          image: ''
+        },
+        participants
+      })
+    };
+
+    const msgBox = document.getElementById('responseMsg');
+    msgBox.innerHTML = '';
+
+    try {
+      const response = await fetch('https://api.periskope.app/v1/chats/create', options);
+      const result = await response.json();
+      if (response.ok) {
+        msgBox.innerHTML = `<div class="alert alert-success">✔️ הקבוצה נוצרה בהצלחה: ${result?.chat?.name || 'ללא שם'}</div>`;
+      } else {
+        msgBox.innerHTML = `<div class="alert alert-error">❌ שגיאה: ${result.message || 'התרחשה שגיאה לא צפויה'}</div>`;
+      }
+    } catch (err) {
+      console.error(err);
+      msgBox.innerHTML = `<div class="alert alert-error">❌ שגיאת רשת: ${err.message}</div>`;
+    }
+  });
+</script>
+</body>
+</html>
