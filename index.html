@@ -101,7 +101,42 @@
     </div>
     <div class="form-group">
       <label class="form-label" for="participants">מספרי טלפון (שורה לכל מספר)</label>
-      <textarea id="participants" class="form-textarea" rows="6" required></textarea>
+      <textarea id="participants" rows="6"></textarea>
+<button onclick="submitNumbers()">Submit</button>
+
+<script>
+  function normalizePhoneNumber(number) {
+    // Remove all non-digit characters
+    number = number.replace(/\D/g, '');
+
+    if (number.startsWith('972')) {
+      return number; // already correct
+    }
+
+    if (number.startsWith('0')) {
+      return '972' + number.slice(1); // replace leading 0 with 972
+    }
+
+    if (number.startsWith('972')) {
+      return number; // just in case again
+    }
+
+    // fallback — assume it's a local number missing 0
+    return '972' + number;
+  }
+
+  function submitNumbers() {
+    const rawInput = document.getElementById('participants').value;
+    const lines = rawInput.split('\n');
+
+    const participants = lines
+      .map(line => normalizePhoneNumber(line.trim()))
+      .filter(num => num.length >= 11); // valid length check (972 + 9 digits)
+
+    console.log(participants); // now ready to be sent in payload
+  }
+</script>
+
     </div>
     <button type="submit" class="btn">🚀 צור קבוצה</button>
     <div id="responseMsg"></div>
